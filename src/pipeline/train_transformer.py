@@ -25,9 +25,7 @@ logger = logging.getLogger(__name__)
 
 # --- MLOps: Early Stopping ---
 class EarlyStopping:
-    def __init__(
-        self, patience=3, min_delta=0.005
-    ):  # Patience = 3 vì Transformer hội tụ rất nhanh
+    def __init__(self, patience=3, min_delta=0.005):
         self.patience = patience
         self.min_delta = min_delta
         self.counter = 0
@@ -39,7 +37,7 @@ class EarlyStopping:
             self.best_loss = val_loss
         elif val_loss > self.best_loss - self.min_delta:
             self.counter += 1
-            logger.warning(f"⚠️ Early Stopping Counter: {self.counter}/{self.patience}")
+            logger.warning(f"Early Stopping Counter: {self.counter}/{self.patience}")
             if self.counter >= self.patience:
                 self.early_stop = True
         else:
@@ -55,13 +53,9 @@ def set_seed(seed=42):
         torch.cuda.manual_seed_all(seed)
 
 
-# ==========================================
-# KHỞI CHẠY (MAIN)
-# ==========================================
 def main():
     set_seed()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    logger.info(f"🚀 Khởi động Fine-Tuning Transformer trên: {device.type.upper()}")
 
     # CẤU HÌNH (Rất quan trọng)
     RAW_DATA_DIR = os.path.join(BASE_DIR, "data", "raw")
@@ -126,7 +120,6 @@ def main():
     early_stopping = EarlyStopping(patience=3)
 
     # 5. Huấn luyện (Fine-tuning Loop)
-    logger.info("🔥 BẮT ĐẦU ÉP XUNG MÔ HÌNH (FINE-TUNING) 🔥")
     best_val_loss = float("inf")
 
     for epoch in range(MAX_EPOCHS):
@@ -180,14 +173,13 @@ def main():
                 },
                 MODEL_SAVE_PATH,
             )
-            logger.info("   🌟 Đã lưu Model Fine-tune tốt nhất!")
+            logger.info("Đã lưu Model Fine-tune tốt nhất!")
 
         if early_stopping.early_stop:
-            logger.info("🛑 Kích hoạt Early Stopping! Dừng Fine-tuning.")
+            logger.info("Kích hoạt Early Stopping! Dừng Fine-tuning.")
             break
 
     # 6. Kiểm thử cuối cùng
-    logger.info("🚀 BÀI THI CUỐI KỲ TRÊN TẬP TEST 🚀")
     model.load_state_dict(torch.load(MODEL_SAVE_PATH)["model_state_dict"])
     model.eval()
     test_correct, test_total = 0, 0
@@ -204,7 +196,7 @@ def main():
             )
             test_total += lbls.size(0)
 
-    logger.info(f"🎯 KẾT QUẢ ĐỘ CHÍNH XÁC PHO-BERT: {test_correct/test_total*100:.2f}%")
+    logger.info(f"KẾT QUẢ ĐỘ CHÍNH XÁC PHO-BERT: {test_correct/test_total*100:.2f}%")
 
 
 if __name__ == "__main__":

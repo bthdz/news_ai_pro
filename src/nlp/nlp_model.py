@@ -96,6 +96,6 @@ class NewsTextExtractor(nn.Module):  # Đổi tên thành Extractor cho chuẩn 
 #     logits, attn = model(dummy_text, dummy_lengths)
 
 #     print(
-#         f"📊 Shape Đầu ra (Dự đoán): {logits.shape} -> Chuẩn là [{BATCH_SIZE}, {NUM_CLASSES}]"
+#         f"Shape Đầu ra (Dự đoán): {logits.shape} -> Chuẩn là [{BATCH_SIZE}, {NUM_CLASSES}]"
 #     )
-#     print(f"👁️ Shape Attention (Sự chú ý): {attn.shape} -> Chuẩn là [{BATCH_SIZE}, 8]")
+#     print(f"Shape Attention (Sự chú ý): {attn.shape} -> Chuẩn là [{BATCH_SIZE}, 8]")

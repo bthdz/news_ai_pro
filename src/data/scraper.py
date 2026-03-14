@@ -12,10 +12,9 @@ IMAGE_DIR = os.path.join(BASE_DIR, "data", "raw", "images")
 os.makedirs(TEXT_DIR, exist_ok=True)
 os.makedirs(IMAGE_DIR, exist_ok=True)
 
-# Giới hạn số lượng bài cào cho MỖI chuyên mục (Chỉnh to lên nếu muốn train model thật)
+# Giới hạn số lượng bài cào cho MỖI chuyên mục
 MAX_ARTICLES_PER_CATEGORY = 100
 
-# Nguồn RSS của VnExpress (Đảm bảo tự động cập nhật tin mới nhất)
 RSS_FEEDS = {
     "World": [
         "https://vnexpress.net/rss/the-gioi.rss",
@@ -162,7 +161,6 @@ if __name__ == "__main__":
     total_saved = 0
 
     for category, rss_url in RSS_FEEDS.items():
-        print(f"\n📡 Đang quét RSS chuyên mục: [{category}]")
         urls = get_article_urls_from_rss(
             rss_url, max_urls=MAX_ARTICLES_PER_CATEGORY + 20
         )  # Lấy dư ra phòng link lỗi

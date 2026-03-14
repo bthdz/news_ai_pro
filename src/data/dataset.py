@@ -19,7 +19,6 @@ class NewsDataset(Dataset):
                 "Không tìm thấy thư mục data! Hãy chạy scraper.py trước."
             )
 
-        print("🔍 Đang quét và kiểm tra dữ liệu...")
         all_json_files = [f for f in os.listdir(self.text_dir) if f.endswith(".json")]
         self.samples = []
         unique_categories = set()

@@ -13,18 +13,13 @@ import torch.optim as optim
 from torch.utils.data import DataLoader, Subset
 from torchvision import transforms
 
-# ==========================================
-# 0. SETUP HỆ THỐNG & ĐƯỜNG DẪN
-# ==========================================
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(BASE_DIR)
 
-# Import các module (ĐẢM BẢO BẠN ĐÃ CẬP NHẬT CÁC FILE NÀY GIỐNG KAGGLE)
 from src.utils.preprocess import TextProcessor
 from src.data.dataset import NewsDataset
 from src.pipeline.multimodal import MultimodalNewsClassifier
 
-# Cấu hình Logging chuyên nghiệp
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
@@ -46,9 +41,6 @@ def set_seed(seed=42):
         torch.backends.cudnn.benchmark = False
 
 
-# ==========================================
-# UTILS: MLOPS TOOLS (EARLY STOPPING & PHÂN TÍCH DATA)
-# ==========================================
 class EarlyStopping:
     """Công cụ 'canh gác' tránh Overfitting"""
 
@@ -64,7 +56,7 @@ class EarlyStopping:
             self.best_loss = val_loss
         elif val_loss > self.best_loss - self.min_delta:
             self.counter += 1
-            logger.warning(f"⚠️ Early Stopping Counter: {self.counter}/{self.patience}")
+            logger.warning(f"Early Stopping Counter: {self.counter}/{self.patience}")
             if self.counter >= self.patience:
                 self.early_stop = True
         else:
@@ -94,14 +86,11 @@ def analyze_corpus(text_dir):
     optimal_max_len = int(p95)
 
     logger.info(
-        f"📊 Trung bình: {np.mean(lengths):.0f} từ/bài | 95% bài báo < {optimal_max_len} từ."
+        f"Trung bình: {np.mean(lengths):.0f} từ/bài | 95% bài báo < {optimal_max_len} từ."
     )
     return optimal_max_len, all_texts
 
 
-# ==========================================
-# 1. CẤU HÌNH DỰ ÁN (CONFIG)
-# ==========================================
 class Config:
     RAW_DATA_DIR = os.path.join(BASE_DIR, "data", "raw")
     MODEL_DIR = os.path.join(BASE_DIR, "models")
@@ -143,16 +132,12 @@ def evaluate(model, dataloader, criterion, device):
     return avg_loss, accuracy
 
 
-# ==========================================
-# 2. HÀM CHẠY CHÍNH (MAIN WORKFLOW)
-# ==========================================
 def main():
     config = Config()
     os.makedirs(config.MODEL_DIR, exist_ok=True)
     set_seed(config.SEED)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    logger.info(f"🚀 Khởi động luồng Huấn luyện trên thiết bị: {device.type.upper()}")
 
     # --- BƯỚC 1: XÂY DỰNG TỪ ĐIỂN ĐỘNG ---
     text_dir = os.path.join(config.RAW_DATA_DIR, "texts")
@@ -162,7 +147,6 @@ def main():
         max_vocab_size=config.MAX_VOCAB_SIZE, max_seq_len=optimal_max_len
     )
     processor.build_vocab(all_texts)
-    logger.info(f"📚 Từ điển thực tế: {len(processor.word2idx)} từ.")
 
     # --- BƯỚC 2: KHỞI TẠO 2 BỘ TRANSFORM (DUAL INSTANTIATION) ---
     train_transform = transforms.Compose(
@@ -241,8 +225,6 @@ def main():
     early_stopping = EarlyStopping(patience=config.PATIENCE, min_delta=config.MIN_DELTA)
 
     # --- BƯỚC 5: VÒNG LẶP HUẤN LUYỆN (TRAINING LOOP) ---
-    logger.info(f"🔥 BẮT ĐẦU HUẤN LUYỆN (Tối đa {config.MAX_EPOCHS} Epochs) 🔥")
-
     for epoch in range(config.MAX_EPOCHS):
         model.train()
         train_loss, train_correct, train_total = 0, 0, 0
@@ -289,22 +271,18 @@ def main():
                 "max_seq_len": optimal_max_len,
             }
             torch.save(checkpoint, config.MODEL_SAVE_PATH)
-            logger.info("   🌟 Đã lưu Checkpoint (Model tốt nhất hiện tại)!")
+            logger.info("Đã lưu Checkpoint (Model tốt nhất hiện tại)!")
 
         if early_stopping.early_stop:
             logger.info(
-                "🛑 KÍCH HOẠT EARLY STOPPING! Đã tìm thấy điểm tối ưu. Dừng huấn luyện."
+                "KÍCH HOẠT EARLY STOPPING! Đã tìm thấy điểm tối ưu. Dừng huấn luyện."
             )
             break
 
-    # --- BƯỚC 6: BÀI THI CUỐI KỲ (TESTING) ---
-    logger.info("🚀 BẮT ĐẦU KIỂM THỬ TRÊN TẬP TEST CHƯA TỪNG THẤY 🚀")
     model.load_state_dict(torch.load(config.MODEL_SAVE_PATH)["model_state_dict"])
     test_loss, test_acc = evaluate(model, test_loader, criterion, device)
 
-    logger.info(f"=== KẾT QUẢ CUỐI CÙNG ===")
-    logger.info(f"🎯 Test Loss: {test_loss:.4f} | Test Accuracy: {test_acc:.2f}%")
-    logger.info("=== HOÀN TẤT DỰ ÁN ===")
+    logger.info(f"Test Loss: {test_loss:.4f} | Test Accuracy: {test_acc:.2f}%")
 
 
 if __name__ == "__main__":
