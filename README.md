@@ -86,12 +86,6 @@ Tat ca lenh ben duoi chay tu thu muc goc du an (`news_ai_project`).
 python src/data/scraper.py
 ```
 
-Script nay:
-
-- Doc RSS theo tung chuyen muc
-- Vao tung bai de lay title/content/image
-- Luu ket qua vao `data/raw/texts` va `data/raw/images`
-
 ### 5.2. Huan luyen baseline (CNN + BiLSTM-Attention)
 
 ```powershell
@@ -109,13 +103,6 @@ Pipeline baseline:
 Checkpoint mac dinh:
 
 - `models/multimodal_model.pth`
-
-Noi dung checkpoint baseline:
-
-- `model_state_dict`
-- Tu dien text (`word2idx`, `idx2word`)
-- Mapping nhan (`category_to_id`, `id_to_category`)
-- `max_seq_len`
 
 ### 5.3. Huan luyen transformer (ResNet50 + PhoBERT)
 
@@ -135,7 +122,7 @@ Checkpoint mac dinh:
 
 - `models/transformer_model.pth`
 
-### 5.4. Chay notebook tren Kaggle (neu may yeu)
+### 5.4. Chay notebook tren Kaggle
 
 Neu may local khong du RAM/VRAM, ban co the chay file notebook tren Kaggle de tan dung GPU mien phi.
 
@@ -168,11 +155,6 @@ print(torch.cuda.is_available(), torch.cuda.get_device_name(0) if torch.cuda.is_
 
 - Bam Run All (hoac chay lan luot tung cell tu tren xuong duoi).
 - Khi train xong, download checkpoint tu muc Output cua Kaggle Notebook.
-
-Luu y:
-
-- Thu muc /kaggle/input la read-only (chi doc du lieu).
-- File model va log se nam trong /kaggle/working va xuat hien o tab Output.
 
 #### Buoc 5: Meo toi uu neu hay bi out-of-memory
 
@@ -231,11 +213,3 @@ Ban co the redirect log ra file:
 python src/pipeline/train.py *> train_baseline.log
 python src/pipeline/train_transformer.py *> train_transformer.log
 ```
-
-## 8. Cac diem can luu y
-
-- Du lieu can dung cap JSON/JPG cung ten id.
-- `scraper.py` hien uu tien bo loc cau truc trang VnExpress; neu nguon doi HTML can cap nhat parser.
-- Trong du lieu thuc te co the ton tai mau co `title` rong; pipeline van train duoc vi su dung ca `content`.
-- Thu muc `models/` dang nam trong `.gitignore` nen checkpoint khong duoc commit mac dinh.
-- File checkpoint `best_baseline_model (1).pth` trong `models/` co san tu truoc de tham khao.
